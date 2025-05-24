@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  document-service:
+    build: .
+    container_name: document-service
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=documentdb
+      - CLASSIFIER_URL=http://classifier:6000/classify
+      - DISTRIBUTION_URL=http://routing:7000/distribute
+    depends_on:
+      - postgres
+    volumes:
+      - ./uploads:/app/uploads
+
+  postgres:
+    image: postgres:15
+    container_name: document-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: documentdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -6,15 +6,20 @@ const path = require('path');
 const documentController = require('../controllers/document.controller');
 const { validarDocumento } = require('../middlewares/validateDocument');
 
-// Configurar multer para subida
+// Configurar almacenamiento de archivos con multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '..', '..', 'uploads')),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
 });
 
 const upload = multer({ storage });
 
 // Rutas
-router.post('/', upload.single('document'), validarDocumento, documentController.handleUpload);
+router.post(
+  '/',
+  upload.single('document'),  // Para recibir un solo archivo en el campo "document"
+  validarDocumento,           // Validar campo asunto
+  documentController.handleUpload
+);
 
 module.exports = router;

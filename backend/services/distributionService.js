@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const sendToDistribution = async (area, texto, filename) => {
   try {
-    const response = await axios.post('http://localhost:7000/distribute', {
+    const response = await axios.post('http://distribution-service:7000/distribute', {
       area,
       texto,
       filename

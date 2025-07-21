@@ -7,9 +7,9 @@ const sendToAI = async (text) => {
       {
         model: 'mistralai/mistral-7b-instruct',
         messages: [
-          { role: 'system', content: `Eres un clasificador de documentos. Tu única tarea es determinar a qué área de la Municipalidad Distrital de Pueblo Nuevo - Ica pertenece un documento escaneado.
+          { role: 'system', content: `Eres un clasificador de documentos. Tu única tarea es determinar a qué área de la Municipalidad Distrital de Pueblo Nuevo - Ica pertenece un documento escaneado. Si es una imagen analizala de tal manera que extraigas el texto para que puedas deducir a qué área pertenece.
 
-Responde con UNA sola palabra: Tecnología, Contabilidad, Logística, RR.HH., o Rechazar.
+Responde con UNA sola palabra: Tecnologia, Contabilidad, Logistica, RR.HH., o Rechazar.
 
 Solo responde "Rechazar" si:
 - El documento no está dirigido a la municipalidad de Pueblo Nuevo - Ica

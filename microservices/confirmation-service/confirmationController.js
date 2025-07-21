@@ -7,14 +7,14 @@ const handleConfirmation = async (req, res) => {
   if (!area || !filename || !decision || !jefe)
     return res.status(400).json({ error: 'Faltan campos requeridos' });
 
-  if (decision.toLowerCase() === 'sí' || decision.toLowerCase() === 'si') {
+  if (decision?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === 'si') {
     try {
       const expediente = await generarExpediente();
       const fecha = new Date();
 
       await pool.query(
-        'INSERT INTO documentos_confirmados (area, filename, jefe, fecha, expediente) VALUES ($1, $2, $3, $4, $5)',
-        [area, filename, jefe, fecha, expediente]
+        'INSERT INTO documentos_confirmados (area, texto_detectado, jefe, expediente, fecha_confirmacion) VALUES ($1, $2, $3, $4, $5)',
+        [area, filename, jefe, expediente, fecha] // ✅ variables correctas
       );
 
       return res.json({

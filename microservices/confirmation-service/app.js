@@ -1,27 +1,44 @@
+// microservices/confirmation-service/app.js
+
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
-const { guardarDocumento } = require('./db'); // 👈 Import correcto
+const { guardarDocumento } = require('./db');
 
 const app = express();
+app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type'], }));             // ← Habilita CORS
+
 app.use(bodyParser.json());
 
-let secuencia = 1; // esto se puede mejorar luego con consulta a la BD
+let secuencia = 1;
 
 app.post('/confirmar', async (req, res) => {
-  const { area, textoDetectado, decision, jefe } = req.body;
+  const { area, filename, decision, jefe } = req.body;
 
-  if (decision === 'Sí') {
-    const expediente = String(secuencia).padStart(4, '0');
-    const fecha = new Date();
+  const respuesta = decision
+    ?.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 
-    await guardarDocumento(area, textoDetectado, jefe, expediente, fecha);
-    secuencia++;
+  if (respuesta === 'si') {
+    try {
+      const expediente = String(secuencia).padStart(4, '0');
+      const fecha = new Date();
 
-    return res.json({
-      confirmado: true,
-      mensaje: 'Documento confirmado y guardado en la base de datos',
-      expediente
-    });
+      // Llamamos a guardarDocumento con los cinco campos en el orden correcto:
+      // 1. area, 2. filename, 3. jefe, 4. fecha, 5. expediente
+      await guardarDocumento(area, filename, jefe, fecha, expediente);
+
+      secuencia++;
+      return res.json({
+        confirmado: true,
+        mensaje: 'Documento confirmado y guardado en la base de datos',
+        expediente
+      });
+    } catch (err) {
+      console.error('❌ Error al guardar en PostgreSQL:', err);
+      return res.status(500).json({ confirmado: false, error: 'Error al guardar en la base de datos' });
+    }
   } else {
     return res.json({
       confirmado: false,
@@ -30,4 +47,4 @@ app.post('/confirmar', async (req, res) => {
   }
 });
 
-app.listen(8000, () => console.log('Confirmation service running on port 8000'));
+app.listen(8000, () => console.log('✅ Confirmation service running on port 8000'));

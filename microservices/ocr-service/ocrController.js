@@ -5,7 +5,6 @@ const fs = require('fs');
 const extractText = async (req, res) => {
   try {
     const file = req.file;
-
     if (!file) return res.status(400).json({ error: 'Archivo no recibido' });
 
     const filePath = file.path;
@@ -18,7 +17,6 @@ const extractText = async (req, res) => {
       const result = await Tesseract.recognize(filePath, 'eng');
       res.json({ texto: result.data.text });
     }
-
   } catch (error) {
     console.error('Error OCR:', error);
     res.status(500).json({ error: 'Error leyendo el documento' });
